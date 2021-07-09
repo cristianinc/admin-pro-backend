@@ -2,6 +2,7 @@ const { response } = require('express');
 const bcrypt = require('bcryptjs');
 
 const Usuario = require('../models/usuario');
+const { generarJWT } = require('../helpers/jwt');
 
 
 
@@ -11,7 +12,8 @@ const getUsuarios = async (req, res) => {
 
     res.json({
         ok: true,
-        usuarios
+        usuarios,
+        uid: req.uid
     });
 
 }
@@ -40,10 +42,14 @@ const crearUsuario = async (req, res = response) => {
         
         
         await usuario.save();
+
+        //Generar el token
+        const token = await generarJWT ( usuario.id );
     
         res.json({
             ok: true,
-            usuario
+            usuario,
+            token
         });
 
     }catch (error){
@@ -70,8 +76,6 @@ const actualizarUsuario = async (req, res = response) => {
     try {
         
         const usuarioDB = await Usuario.findById( uid );
-
-       
 
         if( !usuarioDB ){
             res.status(404).json({
@@ -112,4 +116,42 @@ const actualizarUsuario = async (req, res = response) => {
 
 }
 
-module.exports = { getUsuarios,crearUsuario, actualizarUsuario }
+
+const borrarUsuario = async (req, res = response) => {
+
+
+
+    const uid = req.params.id;
+
+    try {
+        
+        const usuarioDB = await Usuario.findById( uid );
+
+       
+
+        if( !usuarioDB ){
+            res.status(404).json({
+                ok: false,
+                msg: 'No existe un usuario por ese id'
+            });
+        }
+
+        await Usuario.findOneAndDelete( uid );
+
+        res.json({
+            ok: true,
+            usuario: 'registro eliminado con éxito'
+        })
+
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'Error inesperado'
+        })
+    }
+
+}
+
+module.exports = { getUsuarios,crearUsuario, actualizarUsuario, borrarUsuario }
