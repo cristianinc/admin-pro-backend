@@ -1,6 +1,9 @@
+const path = require('path');
+const fs = require('fs');
 const { response } = require("express");
 const { v4: uuidv4 } = require('uuid');
 const { actualizarImagen } = require('../helpers/actualizar-imagen');
+const { fstat } = require('fs');
 
 
 const fileUpload = (req, res = response) => {
@@ -74,4 +77,22 @@ const fileUpload = (req, res = response) => {
 
 }
 
-module.exports = { fileUpload }
+//localhost:3000/api/upload/medicos/f129893b-6dfe-41a3-b51c-a0a43bc3403c.png
+const retornaImagen = ( req, res ) => {
+    const tipo = req.params.tipo;
+    const foto = req.params.foto;
+
+    const pathImg = path.join( __dirname, `../uploads/${ tipo }/${ foto }` );
+
+    //imagen por defecto
+    if ( fs.existsSync( pathImg ) ){
+        res.sendFile( pathImg );
+    }else{
+        const pathImg = path.join( __dirname, `../uploads/noImage.jpeg` );
+        res.sendFile( pathImg );
+    }
+
+    
+}
+
+module.exports = { fileUpload, retornaImagen }
