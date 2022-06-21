@@ -1,4 +1,5 @@
 const { Schema, model } = require('mongoose');
+const { stringify } = require('uuid');
 
 
 const UsuarioSchema = Schema({
@@ -38,3 +39,4 @@ UsuarioSchema.method('toJSON', function() {
 })
 
 module.exports = model('Usuario', UsuarioSchema);
+
